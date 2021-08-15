@@ -1,0 +1,80 @@
+# coding: utf-8
+
+from __future__ import print_function
+import logging
+import mysql.connector
+
+
+
+# ------------------------------------------------------------
+# Create DB
+mycursor.execute("CREATE DATABASE mydatabase")
+
+# ------------------------------------------------------------
+# Create Table
+mycursor.execute("CREATE TABLE customers (name VARCHAR(255), address VARCHAR(255))")
+
+# ------------------------------------------------------------
+# Insert
+sql = "INSERT INTO customers (name, address) VALUES (%s, %s)"
+val = ("John", "Highway 21")
+mycursor.execute(sql, val)
+mydb.commit()
+print(mycursor.rowcount, "record inserted.")
+
+# ------------------------------------------------------------
+# Select
+mycursor.execute("SELECT * FROM customers WHERE address ='Park Lane 38' ORDER BY name")
+myresult = mycursor.fetchall()
+for x in myresult:
+  print(x)
+
+# ------------------------------------------------------------
+# Delete
+sql = "DELETE FROM customers WHERE address = 'Mountain 21'"
+mycursor.execute(sql)
+mydb.commit()
+
+# ------------------------------------------------------------
+# Drop Table
+sql = "DROP TABLE customers"
+mycursor.execute(sql)
+
+# ------------------------------------------------------------
+# Update Table
+sql = "UPDATE customers SET address = 'Canyon 123' WHERE address = 'Valley 345'"
+mycursor.execute(sql)
+mydb.commit()
+
+# ------------------------------------------------------------
+# Join
+sql = "SELECT \
+  users.name AS user, \
+  products.name AS favorite \
+  FROM users \
+  INNER JOIN products ON users.fav = products.id"
+mycursor.execute(sql)
+myresult = mycursor.fetchall()
+for x in myresult:
+  print(x)
+
+
+
+def handler(event, context):
+ 
+    try:
+    # Setup Connection
+    mydb = MySQLdb.connect(host=host, user=user, passwd=passwd, db=database, charset="utf8")
+    cursor = mydb.cursor()
+    
+    query = "INSERT INTO tablename (text_for_field1, text_for_field2, text_for_field3, text_for_field4) VALUES (%s, %s, %s, %s)"
+    cursor.execute(query, (field1, field2, field3, field4))
+    mydb.commit()
+    
+    # Log the error into AWS Cloudwatch and rollback the SQL Transaction
+    except Exception:
+        logging.exception("Errors at main function")
+        mydb.rollback()
+
+    cursor.close()
+    mydb.close()
